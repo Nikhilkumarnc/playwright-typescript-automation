@@ -48,8 +48,8 @@ on:
         default: "2"
         required: true
 
-  # push:
-  # branches: [main] # Automatically run on pushes to main using defaults.
+  push:
+    branches: [main] # Automatically run on pushes to main using defaults.
 
 jobs:
   playwright-tests:
