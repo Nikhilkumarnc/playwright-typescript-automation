@@ -21,11 +21,12 @@ pipeline {
                 'network-intercept-response', // Run the network interception API test file.
                 'get-products-name', // Run the product-name UI test file.
                 'handle-child-page', // Run the child-page UI test file.
-                'login-fixture', // Run the login fixture UI test file.
+                'login-fixture-test', // Run the login fixture UI test file.
                 'parallel-test', // Run the parallel-test file.
                 'parameterized-test', // Run the parameterized-test file.
                 'register-user', // Run the user-registration UI test file.
-                'ui-basics' // Run the basic UI test file.
+                'ui-basics', // Run the basic UI test file.
+                'e2e'
             ],
             description: 'Select all tests or one individual test file.' // Explain the available test selections.
         )
