@@ -47,8 +47,8 @@ on:
         default: "2"
         required: true
 
-  push:
-    branches: [main] # Automatically run on pushes to main using defaults.
+  # push:
+  # branches: [main] # Automatically run on pushes to main using defaults.
 
 jobs:
   playwright-tests:
@@ -88,7 +88,7 @@ jobs:
           TEST_ENV: ${{ inputs.test_env || 'qa' }}
           TEST_SUITE: ${{ inputs.test_suite || 'all-tests' }}
           TEST_GREP: ${{ inputs.test_grep || '' }}
-          WORKERS: ${{ inputs.workers || '2' }}
+          WORKERS: ${{ inputs.workers || '3' }}
         run: |
           # Select the matching npm script, such as all-tests:qa or login-api:uat.
           $scriptName = "${env:TEST_SUITE}:${env:TEST_ENV}"
