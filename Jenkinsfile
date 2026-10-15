@@ -94,12 +94,23 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            archiveArtifacts(
-                artifacts: 'playwright-report/**,test-results/**,allure-results/**', // Archive generated reports and test results.
-                allowEmptyArchive: true // Do not fail if no matching artifacts exist.
-            )
+   
+post {
+    always {
+        archiveArtifacts(
+            artifacts: 'playwright-report/**,test-results/**,allure-results/**',
+            allowEmptyArchive: true
+        )
+
+        publishHTML(target: [
+            reportName: 'Playwright HTML Report', // Name displayed on the Jenkins build page.
+            reportDir: 'playwright-report', // Folder containing Playwright's HTML report.
+            reportFiles: 'index.html', // Main HTML report file.
+            keepAll: true, // Retain reports for previous builds.
+            alwaysLinkToLastBuild: true, // Link to the latest build's report.
+            allowMissing: true, // Avoid failing if no report was generated.
+            reportTitles: 'Playwright Test Results' // Title shown for the report.
+            ])
         }
     }
 }
