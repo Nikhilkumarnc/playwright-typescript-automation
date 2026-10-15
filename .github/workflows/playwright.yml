@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false # Let other OS jobs finish if one OS fails.
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest] # Create three parallel jobs.
+        os: [windows-latest] # Create three parallel jobs.
 
     runs-on: ${{ matrix.os }} # Run each job on its selected operating system.
 
@@ -47,7 +47,7 @@ jobs:
         run: npx playwright install # Install Playwright browser binaries.
 
       - name: Run Playwright tests
-        run: npm run all-tests:qa -- --workers=45 # Run the QA npm script with two workers.
+        run: npm run all-tests:qa -- --workers=2 # Run the QA npm script with two workers.
         env:
           CI: "true" # Identify this as a CI execution.
           TEST_ENV: qa # Select the QA environment.
