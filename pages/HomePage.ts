@@ -94,4 +94,8 @@ export class HomePage {
     await expect(this.searchOption).toBeVisible();
     await this.searchOption.click();
   }
+
+  async clickOnSignOutBtn() {
+    await this.signOutBtn.click();
+  }
 }

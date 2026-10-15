@@ -16,6 +16,7 @@ export class RegisterPage {
   private readonly registerButton: Locator;
   readonly userRegistrationSuccessMsg: Locator;
   private readonly ifRegistrationFailsMsg: Locator;
+  private readonly registrationPageLoginBtn: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -36,6 +37,7 @@ export class RegisterPage {
       name: messages.userRegistrationSuccessMsg,
     });
     this.ifRegistrationFailsMsg = page.locator('[role="alert"]');
+    this.registrationPageLoginBtn = page.getByRole("button", { name: "Login" });
   }
 
   async registerUser(user: RegisterUserType): Promise<void> {
@@ -66,5 +68,9 @@ export class RegisterPage {
 
   async waitForRegistrationFailureMsg(): Promise<void> {
     await expect(this.ifRegistrationFailsMsg).toBeVisible();
+  }
+
+  async clickRegistrationPageLoginBtn() {
+    await this.registrationPageLoginBtn.click();
   }
 }

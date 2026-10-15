@@ -1,4 +1,4 @@
-import { test as base } from "./pageObjects.fixture.ts.ts";
+import { test as base } from "./pageObjects.fixture.ts";
 
 import users from "../test-data/users.json";
 

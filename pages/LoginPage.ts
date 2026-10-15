@@ -14,9 +14,7 @@ export class LoginPage {
     this.password = page.getByPlaceholder("enter your passsword");
     this.loginBtn = page.getByRole("button", { name: "Login" });
     this.loginErrMsgLoc = page.locator('[role="alert"]');
-    this.registerAccountLink = page.getByRole("link", {
-      name: "Register here",
-    });
+    this.registerAccountLink = page.getByText("Register here", { exact: true });
   }
 
   async navigateToLoginPage(): Promise<void> {
