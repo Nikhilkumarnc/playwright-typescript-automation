@@ -51,7 +51,7 @@ pipeline {
 
         stage('Install Playwright Browsers') {
             steps {
-                bat 'npx playwright install' // Install browser binaries required by Playwright projects.
+                bat 'npx playwright install' // Install the browsers required by Playwright projects.
             }
         }
 
@@ -83,10 +83,10 @@ pipeline {
                         "TEST_ENV=${params.TEST_ENV}", // Pass the selected environment to the test process.
                         "CI=true" // Indicate that tests are running in CI.
                     ]) {
-                        if (params.TEST_TARGET == 'all') { // Run the complete test suite.
-                            bat 'npx playwright test --workers=4' // Execute all discovered tests using one worker.
+                        if (params.TEST_TARGET == 'all') {
+                            bat 'npx playwright test --workers=4' // Run all tests using up to four workers.
                         } else {
-                            bat "npx playwright test ${selectedPath} --workers=4" // Execute only the selected test file.
+                            bat "npx playwright test ${selectedPath} --workers=4" // Run the selected file using up to four workers.
                         }
                     }
                 }
@@ -94,22 +94,21 @@ pipeline {
         }
     }
 
-   
-post {
-    always {
-        archiveArtifacts(
-            artifacts: 'playwright-report/**,test-results/**,allure-results/**',
-            allowEmptyArchive: true
-        )
+    post {
+        always {
+            archiveArtifacts(
+                artifacts: 'playwright-report/**,test-results/**,allure-results/**',
+                allowEmptyArchive: true // Do not fail if matching artifacts are absent.
+            )
 
-        publishHTML(target: [
-            reportName: 'Playwright HTML Report', // Name displayed on the Jenkins build page.
-            reportDir: 'playwright-report', // Folder containing Playwright's HTML report.
-            reportFiles: 'index.html', // Main HTML report file.
-            keepAll: true, // Retain reports for previous builds.
-            alwaysLinkToLastBuild: true, // Link to the latest build's report.
-            allowMissing: true, // Avoid failing if no report was generated.
-            reportTitles: 'Playwright Test Results' // Title shown for the report.
+            publishHTML(target: [
+                reportName: 'Playwright HTML Report', // Name displayed on the Jenkins build page.
+                reportDir: 'playwright-report', // Folder containing the Playwright HTML report.
+                reportFiles: 'index.html', // Main HTML report file.
+                keepAll: true, // Retain reports for previous builds.
+                alwaysLinkToLastBuild: true, // Link to the latest build's report.
+                allowMissing: true, // Avoid failing if no report was generated.
+                reportTitles: 'Playwright Test Results' // Title shown for the report.
             ])
         }
     }
