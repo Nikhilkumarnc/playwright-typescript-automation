@@ -1,48 +1,46 @@
 
 pipeline {
-    agent any // Run this pipeline on any available Jenkins agent.
+    agent any // Use an available Jenkins agent; this setup assumes Windows.
 
-    stages { // Define the sequence of stages Jenkins executes.
+    options {
+        timestamps() // Add timestamps to the Jenkins console log.
+    }
 
-        stage('Check Environment') { // Verify that Node.js and npm are available.
+    stages {
+        stage('Check Environment') {
             steps {
-                bat 'node --version' // Print the installed Node.js version; Playwright needs Node.js.
-                bat 'npm --version'  // Print the installed npm version; npm installs project dependencies.
+                bat 'node --version' // Verify Node.js is available.
+                bat 'npm --version'  // Verify npm is available.
             }
         }
 
-        stage('Checkout Confirmation') { // Document the source-code checkout step.
+        stage('Install Dependencies') {
             steps {
-                echo 'Source code was checked out by Jenkins' // Print a message in the Jenkins console.
-                // This message does not perform a checkout; SCM checkout must be configured separately.
+                bat 'npm ci' // Install the exact dependencies in package-lock.json.
             }
         }
 
-        stage('Install Dependencies') { // Install the dependencies required by the project.
+        stage('Install Playwright Browser') {
             steps {
-                bat 'npm ci' // Install exact versions from package-lock.json for a reproducible build.
+                bat 'npx playwright install chromium'
+                // Install Chromium; adjust if your config requires other browsers.
             }
         }
 
-        stage('Install Browsers') { // Ensure Playwright's Chromium browser is installed.
+        stage('Run QA Tests') {
             steps {
-                bat 'npx playwright install chromium' // Download the Chromium build required by this Playwright version.
-            }
-        }
-
-        stage('Run Automation Tests') { // Execute the automated Playwright test suite.
-            steps {
-                bat 'npx playwright test' // Discover and run tests using playwright.config.ts and its settings.
+                bat 'npm run all-tests:qa'
+                // Run your existing QA script, including TEST_ENV=qa.
             }
         }
     }
 
-    post { // Define actions Jenkins performs after the pipeline finishes.
-        always { // Run this block whether the build succeeds or fails.
+    post {
+        always {
             archiveArtifacts(
-                artifacts: 'playwright-report/**,test-results/**', // Include files under both report and test-results folders.
-                allowEmptyArchive: true // Do not fail the build solely because these folders contain no files.
-            ) // Store matching artifacts in Jenkins so they can be accessed from the build page.
+                artifacts: 'playwright-report/**,test-results/**,allure-results/**',
+                allowEmptyArchive: true
+            ) // Preserve generated reports and test artifacts in Jenkins.
         }
     }
 }
