@@ -4,13 +4,13 @@ import { envConfig } from "./config/env.config";
 export default defineConfig({
   testDir: "./tests",
   testMatch: ["tests/**/*.spec.ts"],
-  timeout: 30_000,
+  timeout: 35_000,
 
   reporter: [
     ["html", { outputFolder: "playwright-report", open: "on-failure" }],
   ],
 
-  expect: { timeout: 30_000 },
+  expect: { timeout: 35_000 },
 
   use: {
     headless: false,

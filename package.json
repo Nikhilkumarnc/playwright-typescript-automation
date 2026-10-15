@@ -18,7 +18,7 @@
     "all-tests:uat": "cross-env TEST_ENV=uat playwright test",
     "register-user:uat": "cross-env TEST_ENV=uat playwright test tests/ui/register-user",
     "ui-basics:uat": "cross-env TEST_ENV=uat playwright test tests/ui/ui-basics",
-    "login-fixture:uat": "cross-env TEST_ENV=uat playwright test tests/ui/login-fixture",
+    "login-fixture:uat": "cross-env TEST_ENV=uat playwright test tests/ui/login-fixturtest",
     "handle-child-page:uat": "cross-env TEST_ENV=uat playwright test tests/ui/handle-child-page",
     "parameterized-test:uat": "cross-env TEST_ENV=uat playwright test tests/ui/parameterized-test",
     "get-products-name:uat": "cross-env TEST_ENV=uat playwright test tests/ui/get-products-name",
