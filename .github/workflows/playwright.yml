@@ -1,66 +1,124 @@
-name: Playwright TypeScript Tests # Name displayed in GitHub Actions.
+name: Playwright TypeScript Tests # Workflow name shown in GitHub Actions.
 
 on:
-  workflow_dispatch: # Allow manual execution from GitHub.
+  workflow_dispatch: # Allow manual runs with selectable parameters.
+    inputs:
+      test_env:
+        description: "Choose the target environment"
+        type: choice
+        options:
+          - qa
+          - uat
+        default: qa
+        required: true
+
+      test_suite:
+        description: "Choose the test suite to execute"
+        type: choice
+        options:
+          - all-tests
+          - register-user
+          - ui-basics
+          - login-fixture
+          - handle-child-page
+          - parameterized-test
+          - get-products-name
+          - parallel-test
+          - login-api
+          - multiple-storage
+          - network-intercept-response
+        default: all-tests
+        required: true
+
+      test_grep:
+        description: "Optional test title filter; leave blank to run the selected suite"
+        type: string
+        default: ""
+        required: false
+
+      workers:
+        description: "Maximum Playwright workers"
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "3"
+          - "4"
+        default: "2"
+        required: true
+
   push:
-    branches: [main] # Run automatically when code is pushed to main.
+    branches: [main] # Automatically run on pushes to main using defaults.
 
 jobs:
   playwright-tests:
-    name: Playwright Tests - ${{ matrix.os }} # Display the OS in each job.
-    timeout-minutes: 60 # Cancel a job if it exceeds 60 minutes.
-
-    strategy:
-      fail-fast: false # Let other OS jobs finish if one OS fails.
-      matrix:
-        os: [windows-latest] # Create three parallel jobs.
-
-    runs-on: ${{ matrix.os }} # Run each job on its selected operating system.
+    name: Windows - Playwright Tests
+    runs-on: windows-latest # Run only on a Windows GitHub-hosted runner.
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Download the repository source code.
+        uses: actions/checkout@v4 # Download the repository.
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4 # Configure Node.js.
+        uses: actions/setup-node@v4
         with:
-          node-version: 22 # Use Node.js 22 on all operating systems.
-          cache: npm # Cache npm dependencies to speed up subsequent runs.
+          node-version: 22
+          cache: npm # Cache dependencies between workflow runs.
 
       - name: Set up Java
-        uses: actions/setup-java@v4 # Configure Java for the Allure CLI.
+        uses: actions/setup-java@v4
         with:
-          distribution: temurin # Use Eclipse Temurin.
-          java-version: "17" # Use Java 17.
+          distribution: temurin
+          java-version: "17" # Required by the Allure CLI.
 
       - name: Install dependencies
-        run: npm ci # Install exact project dependencies from package-lock.json.
+        run: npm ci # Install dependencies from package-lock.json.
 
       - name: Install Allure CLI
-        run: npm install --global allure-commandline # Install the Allure report generator.
+        run: npm install --global allure-commandline
 
-      - name: Install Playwright system dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: npx playwright install-deps # Install required browser libraries on Ubuntu.
+      - name: Install all three Playwright browsers
+        run: npx playwright install chromium firefox webkit
 
-      - name: Install Playwright browsers
-        run: npx playwright install # Install Playwright browser binaries.
-
-      - name: Run Playwright tests
-        run: npm run all-tests:qa -- --workers=2 # Run the QA npm script with two workers.
+      - name: Run selected Playwright tests
+        shell: pwsh
         env:
-          CI: "true" # Identify this as a CI execution.
-          TEST_ENV: qa # Select the QA environment.
+          CI: "true"
+          TEST_ENV: ${{ inputs.test_env || 'qa' }}
+          TEST_SUITE: ${{ inputs.test_suite || 'all-tests' }}
+          TEST_GREP: ${{ inputs.test_grep || '' }}
+          WORKERS: ${{ inputs.workers || '2' }}
+        run: |
+          # Select the matching npm script, such as all-tests:qa or login-api:uat.
+          $scriptName = "${env:TEST_SUITE}:${env:TEST_ENV}"
+
+          # Configure the maximum number of concurrent Playwright workers.
+          $playwrightArgs = @("--workers=$env:WORKERS")
+
+          # Optionally filter tests by their title or regular expression.
+          if (-not [string]::IsNullOrWhiteSpace($env:TEST_GREP)) {
+            $playwrightArgs += @("--grep", $env:TEST_GREP)
+          }
+
+          # Execute the selected suite and pass the Playwright arguments.
+          npm run $scriptName -- @playwrightArgs
+
+          # Fail the GitHub Actions step if the test command fails.
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
 
       - name: Generate Allure HTML report
         if: ${{ always() && hashFiles('allure-results/**') != '' }}
-        run: allure generate allure-results --clean -o allure-report # Convert raw results into HTML.
+        shell: pwsh
+        run: allure generate allure-results --clean -o allure-report
 
       - name: Upload Playwright HTML report
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-html-report-${{ matrix.os }} # Keep reports separate by OS.
+          name: playwright-html-report-windows
           path: playwright-report/
           if-no-files-found: warn
           retention-days: 14
@@ -69,7 +127,7 @@ jobs:
         if: ${{ always() && hashFiles('allure-report/**') != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: allure-html-report-${{ matrix.os }} # Upload this OS's Allure report.
+          name: allure-html-report-windows
           path: allure-report/
           if-no-files-found: warn
           retention-days: 14
@@ -78,7 +136,7 @@ jobs:
         if: ${{ always() && hashFiles('allure-results/**') != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: allure-raw-results-${{ matrix.os }} # Preserve raw test evidence per OS.
+          name: allure-raw-results-windows
           path: allure-results/
           if-no-files-found: warn
           retention-days: 14
