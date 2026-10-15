@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "e2e:qa": "cross-env TEST_ENV=qa playwright test tests/ui/e2e",
     "all-tests:qa": "cross-env TEST_ENV=qa playwright test",
     "register-user:qa": "cross-env TEST_ENV=qa playwright test tests/ui/register-user",
     "ui-basics:qa": "cross-env TEST_ENV=qa playwright test tests/ui/ui-basics",
