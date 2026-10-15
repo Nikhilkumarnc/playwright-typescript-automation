@@ -1,90 +1,92 @@
+
 pipeline {
-    agent any // Run on any available Jenkins agent; this pipeline requires a Windows agent because it uses bat commands.
+    agent any // Run on any available agent; this pipeline uses Windows bat commands.
 
     options {
-        timestamps() // Add timestamps to console output to help identify when each pipeline step runs.
+        timestamps() // Add timestamps to Jenkins console output.
     }
 
     parameters {
         choice(
-            name: 'TEST_ENV', // Parameter used to select the target environment.
+            name: 'TEST_ENV', // Parameter for selecting the target environment.
             choices: ['qa', 'uat'], // Available environments.
-            description: 'Select the environment for Playwright tests.' // Explain the parameter in Jenkins.
+            description: 'Select the environment for Playwright tests.'
         )
 
         choice(
-            name: 'TEST_TARGET', // Parameter used to select which tests to execute.
+            name: 'TEST_TARGET', // Parameter for selecting which tests to execute.
             choices: [
-                'all', // Run the complete Playwright test suite.
-                'login-api', // Run the login API test file.
-                'multiple-storage', // Run the multiple-storage API test file.
-                'network-intercept-response', // Run the network interception API test file.
-                'get-products-name', // Run the product-name UI test file.
-                'handle-child-page', // Run the child-page UI test file.
-                'login-fixture-test', // Run the login fixture UI test file.
-                'parallel-test', // Run the parallel-test file.
-                'parameterized-test', // Run the parameterized-test file.
-                'register-user', // Run the user-registration UI test file.
-                'ui-basics', // Run the basic UI test file.
+                'all',
+                'login-api',
+                'multiple-storage',
+                'network-intercept-response',
+                'get-products-name',
+                'handle-child-page',
+                'login-fixture-test',
+                'parallel-test',
+                'parameterized-test',
+                'register-user',
+                'ui-basics',
                 'e2e'
             ],
-            description: 'Select all tests or one individual test file.' // Explain the available test selections.
+            description: 'Select all tests or one individual test file.'
         )
     }
 
-    stages { // Define the stages Jenkins executes in sequence.
-
-        stage('Check Environment') { // Verify Node.js and npm are available to Jenkins.
+    stages {
+        stage('Check Environment') {
             steps {
-                bat 'where node' // Display the location of the Node.js executable.
+                bat 'where node' // Display the Node.js executable location.
                 bat 'node --version' // Print the Node.js version.
-                bat 'where npm' // Display the location of the npm executable.
+                bat 'where npm' // Display the npm executable location.
                 bat 'npm --version' // Print the npm version.
             }
         }
 
-        stage('Install Dependencies') { // Install the project dependencies in the Jenkins workspace.
+        stage('Install Dependencies') {
             steps {
-                bat 'npm ci' // Install exact dependency versions recorded in package-lock.json.
+                bat 'npm ci' // Install exact dependency versions from package-lock.json.
             }
         }
 
-        stage('Install Playwright Browser') { // Ensure the required browser is installed.
+        stage('Install Playwright Browsers') {
             steps {
-                bat 'npx playwright install' // Install the Chromium build required by this Playwright version.
+                bat 'npx playwright install' // Install browser binaries required by Playwright projects.
             }
         }
 
-        stage('Run Automation Tests') { // Run the tests for the selected environment and test scope.
+        stage('Run Automation Tests') {
             steps {
-                script { // Use Groovy logic to select the correct test file.
-
-                    def testPaths = [ // Map each Jenkins test selection to a test file in the repository.
-                        'all'                        : '', // An empty path means run the entire suite.
+                script {
+                    def testPaths = [ // Map each Jenkins selection to its corresponding test file.
+                        'all'                        : '',
                         'login-api'                  : 'tests/api/login-api.spec.ts',
                         'multiple-storage'           : 'tests/api/multiple-storage.spec.ts',
                         'network-intercept-response' : 'tests/api/network-intercept-response.spec.ts',
                         'get-products-name'           : 'tests/ui/get-products-name.spec.ts',
                         'handle-child-page'           : 'tests/ui/handle-child-page.spec.ts',
-                        'login-fixture'               : 'tests/ui/login-fixture-test.spec.ts',
-                        'parallel-test'              : 'tests/ui/parallel-test.spec.ts',
+                        'login-fixture-test'          : 'tests/ui/login-fixture-test.spec.ts',
+                        'parallel-test'               : 'tests/ui/parallel-test.spec.ts',
                         'parameterized-test'          : 'tests/ui/parameterized-test.spec.ts',
                         'register-user'               : 'tests/ui/register-user.spec.ts',
-                        'ui-basics'                   : 'tests/ui/ui-basics.spec.ts'
+                        'ui-basics'                   : 'tests/ui/ui-basics.spec.ts',
+                        'e2e'                         : 'tests/ui/e2e.spec.ts'
                     ]
 
-                    def selectedPath = testPaths[params.TEST_TARGET] // Find the file corresponding to the user's selection.
+                    def selectedPath = testPaths[params.TEST_TARGET] // Find the path for the selected test target.
 
-                    if (selectedPath == null) { // Check whether the selected test target exists in the mapping.
-                        error("Unknown test target: ${params.TEST_TARGET}") // Stop the build with a clear error for an invalid selection.
+                    if (selectedPath == null) { // Check whether the selected target exists in the mapping.
+                        error("Unknown test target: ${params.TEST_TARGET}") // Stop with a clear error if it is invalid.
                     }
 
-                    withEnv(["TEST_ENV=${params.TEST_ENV}",  "CI=true"]) { // Make the selected environment available to Playwright and env.config.ts.
-
-                        if (params.TEST_TARGET == 'all') { // Check whether the user selected the complete test suite.
-                            bat 'npx playwright test --workers=1' // Run all tests discovered by playwright.config.ts.
-                        } else { // Otherwise, execute only the selected test file.
-                            bat "npx playwright test ${selectedPath} --workers=1" // Run the selected file, not the entire suite.
+                    withEnv([
+                        "TEST_ENV=${params.TEST_ENV}", // Pass the selected environment to the test process.
+                        "CI=true" // Indicate that tests are running in CI.
+                    ]) {
+                        if (params.TEST_TARGET == 'all') { // Run the complete test suite.
+                            bat 'npx playwright test --workers=1' // Execute all discovered tests using one worker.
+                        } else {
+                            bat "npx playwright test ${selectedPath} --workers=1" // Execute only the selected test file.
                         }
                     }
                 }
@@ -92,13 +94,12 @@ pipeline {
         }
     }
 
-    post { // Define actions Jenkins performs after the stages finish.
-
-        always { // Run this block whether tests pass or fail.
+    post {
+        always {
             archiveArtifacts(
-                artifacts: 'playwright-report/**,test-results/**,allure-results/**', // Select generated Playwright and Allure report files.
-                allowEmptyArchive: true // Avoid failing the build solely because no matching files were generated.
-            ) // Save matching artifacts to the Jenkins build page for later inspection.
+                artifacts: 'playwright-report/**,test-results/**,allure-results/**', // Archive generated reports and test results.
+                allowEmptyArchive: true // Do not fail if no matching artifacts exist.
+            )
         }
     }
 }
