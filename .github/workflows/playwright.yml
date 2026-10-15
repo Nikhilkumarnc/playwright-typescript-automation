@@ -27,6 +27,7 @@ on:
           - login-api
           - multiple-storage
           - network-intercept-response
+          - e2e
         default: all-tests
         required: true
 
