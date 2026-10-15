@@ -84,9 +84,9 @@ pipeline {
                         "CI=true" // Indicate that tests are running in CI.
                     ]) {
                         if (params.TEST_TARGET == 'all') { // Run the complete test suite.
-                            bat 'npx playwright test --workers=1' // Execute all discovered tests using one worker.
+                            bat 'npx playwright test --workers=4' // Execute all discovered tests using one worker.
                         } else {
-                            bat "npx playwright test ${selectedPath} --workers=1" // Execute only the selected test file.
+                            bat "npx playwright test ${selectedPath} --workers=4" // Execute only the selected test file.
                         }
                     }
                 }
