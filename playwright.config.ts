@@ -7,7 +7,8 @@ export default defineConfig({
   timeout: 35_000,
 
   reporter: [
-    ["html", { outputFolder: "playwright-report", open: "on-failure" }],
+    ["html", { outputFolder: "playwright-report", open: "on-failure" }], // Generate the Playwright HTML report.
+    ["allure-playwright", { outputFolder: "allure-results" }], // Generate Allure result files.
   ],
 
   expect: { timeout: 35_000 },
