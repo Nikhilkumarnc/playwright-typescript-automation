@@ -78,12 +78,12 @@ pipeline {
                         error("Unknown test target: ${params.TEST_TARGET}") // Stop the build with a clear error for an invalid selection.
                     }
 
-                    withEnv(["TEST_ENV=${params.TEST_ENV}"]) { // Make the selected environment available to Playwright and env.config.ts.
+                    withEnv(["TEST_ENV=${params.TEST_ENV}",  "CI=true"]) { // Make the selected environment available to Playwright and env.config.ts.
 
                         if (params.TEST_TARGET == 'all') { // Check whether the user selected the complete test suite.
-                            bat 'npx playwright test' // Run all tests discovered by playwright.config.ts.
+                            bat 'npx playwright test --workers=1' // Run all tests discovered by playwright.config.ts.
                         } else { // Otherwise, execute only the selected test file.
-                            bat "npx playwright test ${selectedPath}" // Run the selected file, not the entire suite.
+                            bat "npx playwright test ${selectedPath} --workers=1" // Run the selected file, not the entire suite.
                         }
                     }
                 }

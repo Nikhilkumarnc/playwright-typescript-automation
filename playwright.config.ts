@@ -12,8 +12,12 @@ export default defineConfig({
 
   expect: { timeout: 35_000 },
 
+  workers: process.env.CI ? 1 : undefined, // Use one worker in CI initially; let Playwright choose locally.
+
+  retries: process.env.CI ? 1 : 0, // Retry a failed CI test once to help diagnose intermittent failures.
+
   use: {
-    headless: false,
+    headless: !!process.env.CI, // Run headlessly in CI; preserve headed mode locally when CI is unset.
     baseURL: envConfig.baseURL,
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
