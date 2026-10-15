@@ -50,7 +50,7 @@ pipeline {
 
         stage('Install Playwright Browser') { // Ensure the required browser is installed.
             steps {
-                bat 'npx playwright install chromium' // Install the Chromium build required by this Playwright version.
+                bat 'npx playwright install' // Install the Chromium build required by this Playwright version.
             }
         }
 
