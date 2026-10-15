@@ -1,0 +1,12 @@
+[
+  {
+    "username": "nikhilkumar.temp@gmail.com",
+    "password": "AutoTest@14",
+    "expectedResult": "success"
+  },
+  {
+    "username": "test@gmail.com",
+    "password": "Test@1234",
+    "expectedResult": "failure"
+  }
+]

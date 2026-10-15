@@ -1,0 +1,10 @@
+{
+  "qa": {
+    "baseURL": "https://rahulshettyacademy.com/client/",
+    "apiBaseURL": "https://rahulshettyacademy.com"
+  },
+  "uat": {
+    "baseURL": "https://rahulshettyacademy.com/client/",
+    "apiBaseURL": "https://rahulshettyacademy.com"
+  }
+}

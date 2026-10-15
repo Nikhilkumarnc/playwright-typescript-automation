@@ -1,0 +1,17 @@
+@baseUrl = https://rahulshettyacademy.com
+
+### Login
+# @name login
+POST {{baseUrl}}/api/ecom/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userEmail": "nikhilkumar.temp@gmail.com",
+  "userPassword": "AutoTest@14"
+}
+
+### Use the token
+GET {{baseUrl}}/api/ecom/order/get-orders-details
+Authorization: Bearer {{login.response.body.token}}
+Accept: application/json

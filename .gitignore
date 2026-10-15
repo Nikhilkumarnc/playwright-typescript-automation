@@ -1,0 +1,8 @@
+
+# Dependencies — Jenkins will install these using npm ci.
+node_modules/
+
+# Playwright generated output.
+test-results/
+playwright-report/
+playwright/.cache/

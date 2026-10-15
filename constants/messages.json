@@ -1,0 +1,7 @@
+{
+  "loginErrorMsg": "Incorrect email or password.",
+  "orderSuccess": "Thankyou for the order.",
+  "unauthorizedOrder": "You are not authorize to view this order",
+  "noOrders": "No Orders",
+  "userRegistrationSuccessMsg": "Account Created Successfully"
+}

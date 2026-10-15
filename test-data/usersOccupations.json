@@ -1,0 +1,8 @@
+{
+  "occupations": {
+    "engg": "Engineer",
+    "Dr.": "Doctor",
+    "student": "Student",
+    "business": "Business"
+  }
+}

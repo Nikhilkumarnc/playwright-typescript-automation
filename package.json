@@ -1,0 +1,47 @@
+{
+  "name": "playwright-automation-practice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "all-tests:qa": "cross-env TEST_ENV=qa playwright test",
+    "register-user:qa": "cross-env TEST_ENV=qa playwright test tests/ui/register-user",
+    "ui-basics:qa": "cross-env TEST_ENV=qa playwright test tests/ui/ui-basics",
+    "login-fixture:qa": "cross-env TEST_ENV=qa playwright test tests/ui/login-fixture-test",
+    "handle-child-page:qa": "cross-env TEST_ENV=qa playwright test tests/ui/handle-child-page",
+    "parameterized-test:qa": "cross-env TEST_ENV=qa playwright test tests/ui/parameterized-test",
+    "get-products-name:qa": "cross-env TEST_ENV=qa playwright test tests/ui/get-products-name",
+    "parallel-test:qa": "cross-env TEST_ENV=qa playwright test tests/ui/parallel-test",
+    "login-api:qa": "cross-env TEST_ENV=qa playwright test tests/api/login-api",
+    "multiple-storage:qa": "cross-env TEST_ENV=qa playwright test tests/api/multiple-storage",
+    "network-intercept-response:qa": "cross-env TEST_ENV=qa playwright test tests/api/network-intercept-response",
+    "all-tests:uat": "cross-env TEST_ENV=uat playwright test",
+    "register-user:uat": "cross-env TEST_ENV=uat playwright test tests/ui/register-user",
+    "ui-basics:uat": "cross-env TEST_ENV=uat playwright test tests/ui/ui-basics",
+    "login-fixture:uat": "cross-env TEST_ENV=uat playwright test tests/ui/login-fixture",
+    "handle-child-page:uat": "cross-env TEST_ENV=uat playwright test tests/ui/handle-child-page",
+    "parameterized-test:uat": "cross-env TEST_ENV=uat playwright test tests/ui/parameterized-test",
+    "get-products-name:uat": "cross-env TEST_ENV=uat playwright test tests/ui/get-products-name",
+    "parallel-test:uat": "cross-env TEST_ENV=uat playwright test tests/ui/parallel-test",
+    "login-api:uat": "cross-env TEST_ENV=uat playwright test tests/api/login-api",
+    "multiple-storage:uat": "cross-env TEST_ENV=uat playwright test tests/api/multiple-storage",
+    "network-intercept-response:uat": "cross-env TEST_ENV=uat playwright test tests/api/network-intercept-response"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.5",
+    "allure-playwright": "^3.13.0",
+    "cross-env": "^10.1.0",
+    "eslint-plugin-playwright": "^2.12.1"
+  },
+  "dependencies": {
+    "@playwright/cli": "^0.1.22",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "dotenv": "^18.0.7"
+  }
+}
