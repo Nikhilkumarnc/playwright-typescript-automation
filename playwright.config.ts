@@ -13,7 +13,7 @@ export default defineConfig({
 
   expect: { timeout: 35_000 },
 
-  workers: process.env.CI ? 4 : undefined, // Use one worker in CI initially; let Playwright choose locally.
+  workers: process.env.CI ? 18 : undefined, // Use one worker in CI initially; let Playwright choose locally.
 
   retries: process.env.CI ? 1 : 0, // Retry a failed CI test once to help diagnose intermittent failures.
 

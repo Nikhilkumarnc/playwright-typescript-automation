@@ -5,6 +5,8 @@ import usersOccupations from "../../test-data/usersOccupations.json";
 import products from "../../test-data/products.json";
 import messages from "../../constants/messages.json";
 
+test.describe.configure({ mode: "parallel" });
+
 test("@smoke Verify authenticated user", async ({
   authenticatedPage,
   pages,
