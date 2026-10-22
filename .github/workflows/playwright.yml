@@ -46,7 +46,7 @@ on:
           - "2"
           - "3"
           - "4"
-          - "18"
+          - "6"
         default: "2"
         required: true
 
@@ -105,7 +105,7 @@ jobs:
           TEST_ENV: ${{ inputs.test_env || 'qa' }}
           TEST_SUITE: ${{ inputs.test_suite || 'all-tests' }}
           TEST_GREP: ${{ inputs.test_grep || '' }}
-          WORKERS: ${{ inputs.workers || '18' }}
+          WORKERS: ${{ inputs.workers || '2' }}
         run: |
           # Build the npm script name, such as all-tests:qa.
           $scriptName = "$env:TEST_SUITE`:$env:TEST_ENV"

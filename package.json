@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "e2e:qa": "cross-env TEST_ENV=qa playwright test tests/ui/e2e",
+    "e2e-cross-parallel:qa": "cross-env TEST_ENV=qa playwright test tests/ui/e2e-cross-parallel",
+    "e2e-cross-parallel:uat": "cross-env TEST_ENV=uat playwright test tests/ui/e2e-cross-parallel",
     "all-tests:qa": "cross-env TEST_ENV=qa playwright test",
     "register-user:qa": "cross-env TEST_ENV=qa playwright test tests/ui/register-user",
     "ui-basics:qa": "cross-env TEST_ENV=qa playwright test tests/ui/ui-basics",
