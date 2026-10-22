@@ -1,7 +1,7 @@
-name: Playwright TypeScript Tests # Workflow name shown in GitHub Actions.
+name: Playwright TypeScript Tests
 
 on:
-  workflow_dispatch: # Allow manual runs with selectable parameters.
+  workflow_dispatch:
     inputs:
       test_env:
         description: "Choose the target environment"
@@ -28,58 +28,74 @@ on:
           - multiple-storage
           - network-intercept-response
           - e2e
+          - e2e-cross-parallel
         default: all-tests
         required: true
 
       test_grep:
-        description: "Optional test title filter; leave blank to run the selected suite"
+        description: "Optional test title filter"
         type: string
         default: ""
         required: false
 
       workers:
-        description: "Maximum Playwright workers"
+        description: "Maximum Playwright workers PER OS"
         type: choice
         options:
           - "1"
           - "2"
           - "3"
           - "4"
+          - "18"
         default: "2"
         required: true
 
-  push:
-    branches: [main] # Automatically run on pushes to main using defaults.
+  # push:
+  #   branches: [main]
 
 jobs:
   playwright-tests:
-    name: Windows - Playwright Tests
-    runs-on: windows-latest # Run only on a Windows GitHub-hosted runner.
+    name: ${{ matrix.os }} - Playwright Tests
+
+    strategy:
+      fail-fast: false # Let other OS jobs finish if one OS fails.
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+
+    runs-on: ${{ matrix.os }} # Run the same tests on each OS.
     timeout-minutes: 60
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Download the repository.
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm # Cache dependencies between workflow runs.
+          cache: npm
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17" # Required by the Allure CLI.
+          java-version: "17"
 
       - name: Install dependencies
-        run: npm ci # Install dependencies from package-lock.json.
+        run: npm ci # Install locked project dependencies.
 
       - name: Install Allure CLI
         run: npm install --global allure-commandline
 
-      - name: Install all three Playwright browsers
+      - name: Install Playwright browsers (Linux)
+        if: runner.os == 'Linux'
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Install Playwright browsers (Windows and macOS)
+        if: runner.os != 'Linux'
         run: npx playwright install chromium firefox webkit
 
       - name: Run selected Playwright tests
@@ -89,23 +105,23 @@ jobs:
           TEST_ENV: ${{ inputs.test_env || 'qa' }}
           TEST_SUITE: ${{ inputs.test_suite || 'all-tests' }}
           TEST_GREP: ${{ inputs.test_grep || '' }}
-          WORKERS: ${{ inputs.workers || '3' }}
+          WORKERS: ${{ inputs.workers || '18' }}
         run: |
-          # Select the matching npm script, such as all-tests:qa or login-api:uat.
-          $scriptName = "${env:TEST_SUITE}:${env:TEST_ENV}"
+          # Build the npm script name, such as all-tests:qa.
+          $scriptName = "$env:TEST_SUITE`:$env:TEST_ENV"
 
-          # Configure the maximum number of concurrent Playwright workers.
+          # Set the worker limit for this OS job.
           $playwrightArgs = @("--workers=$env:WORKERS")
 
-          # Optionally filter tests by their title or regular expression.
+          # Add a title filter only when one was supplied.
           if (-not [string]::IsNullOrWhiteSpace($env:TEST_GREP)) {
             $playwrightArgs += @("--grep", $env:TEST_GREP)
           }
 
-          # Execute the selected suite and pass the Playwright arguments.
+          # Run the selected suite with the requested options.
           npm run $scriptName -- @playwrightArgs
 
-          # Fail the GitHub Actions step if the test command fails.
+          # Preserve the test command's failure exit code.
           if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
           }
@@ -119,7 +135,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-html-report-windows
+          name: playwright-html-report-${{ matrix.os }}
           path: playwright-report/
           if-no-files-found: warn
           retention-days: 14
@@ -128,7 +144,7 @@ jobs:
         if: ${{ always() && hashFiles('allure-report/**') != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: allure-html-report-windows
+          name: allure-html-report-${{ matrix.os }}
           path: allure-report/
           if-no-files-found: warn
           retention-days: 14
@@ -137,7 +153,7 @@ jobs:
         if: ${{ always() && hashFiles('allure-results/**') != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: allure-raw-results-windows
+          name: allure-raw-results-${{ matrix.os }}
           path: allure-results/
           if-no-files-found: warn
           retention-days: 14
